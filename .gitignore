@@ -166,4 +166,8 @@ cython_debug/
 # virtual env
 bank_env/
 
+# vscode files
 .vscode/
+
+# run files
+runs/

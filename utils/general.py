@@ -976,15 +976,51 @@ def non_max_suppression(
         i = torchvision.ops.nms(boxes, scores, iou_thres)  # NMS
         if i.shape[0] > max_det:  # limit detections
             i = i[:max_det]
-        if merge and (1 < n < 3E3):  # Merge NMS (boxes merged using weighted mean)
-            # update boxes as boxes(i,4) = weights(i,n) * boxes(n,4)
-            iou = box_iou(boxes[i], boxes) > iou_thres  # iou matrix
-            weights = iou * scores[None]  # box weights
-            x[i, :4] = torch.mm(weights, x[:, :4]).float() / weights.sum(1, keepdim=True)  # merged boxes
-            if redundant:
-                i = i[iou.sum(1) > 1]  # require redundancy
 
-        output[xi] = x[i]
+
+        # Deleted part
+        # overlapping detections will be averaged (average the locations of overlapping detections)
+        # if merge and (1 < n < 3E3):  # Merge NMS (boxes merged using weighted mean) #
+        #     # update boxes as boxes(i,4) = weights(i,n) * boxes(n,4)
+        #     iou = box_iou(boxes[i], boxes) > iou_thres  # iou matrix
+        #     weights = iou * scores[None]  # box weights
+        #     x[i, :4] = torch.mm(weights, x[:, :4]).float() / weights.sum(1, keepdim=True)  # merged boxes
+        #     if redundant:
+        #         i = i[iou.sum(1) > 1]  # require redundancy
+        # output[xi] = x[i]
+
+
+        # New edition ---------------------------------------------------------------------------------------------------------
+        # the NMS will pick the single box with the highest confidence (Keep only the top detection for each class)
+        # --conf-thres 0.1 helps keep most detections initially, while
+        # --iou-thres 0.45 controls which boxes are filtered by NMS, ensuring the most confident box per class is retained
+
+        if len(i) > 0:
+            unique_classes = x[i, 5].unique()  # Find unique classes in the NMS-filtered results
+            best_detections = []
+            for cls in unique_classes:
+                cls_detections = x[i][x[i, 5] == cls]  # Filter detections by class
+                best_conf_idx = cls_detections[:, 4].argmax()  # Get index of highest confidence
+                best_detections.append(cls_detections[best_conf_idx])  # Append the top detection for this class
+
+            output[xi] = torch.stack(best_detections) if best_detections else torch.zeros((0, 6 + nm), device=prediction.device)
+        else:
+            output[xi] = torch.zeros((0, 6 + nm), device=prediction.device)
+        # ------ old one ------
+        # if len(i) > 0:
+        #     unique_classes = x[i, 5].unique()
+        #     best_detections = []
+        #     for cls in unique_classes:
+        #         cls_detections = x[i][x[i, 5] == cls]
+        #         if len(cls_detections) > 0:
+        #             best_detections.append(cls_detections[0])  # Keep top detection per class
+
+        #     output[xi] = torch.stack(best_detections) if best_detections else torch.zeros((0, 6 + nm), device=prediction.device)
+        # else:
+        #     output[xi] = torch.zeros((0, 6 + nm), device=prediction.device)
+        # End of new edition ----------------------------------------------------------------------------------------------------
+
+
         if mps:
             output[xi] = output[xi].to(device)
         if (time.time() - t) > time_limit:

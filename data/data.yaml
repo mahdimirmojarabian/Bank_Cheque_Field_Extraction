@@ -1,6 +1,6 @@
-train: ../train/images
-val: ../valid/images
-test: ../test/images
+train: C:/Users/diagl_r84ooau/Desktop/Bank_Cheque_Field_Extraction/data/train/images
+val: C:/Users/diagl_r84ooau/Desktop/Bank_Cheque_Field_Extraction/data/valid/images
+test: C:/Users/diagl_r84ooau/Desktop/Bank_Cheque_Field_Extraction/data/test/images
 
 nc: 8
 names: ['AcNo', 'Amt', 'AmtWords', 'ChqNo', 'DateIss', 'IssueBank', 'ReceiverName', 'Sign']

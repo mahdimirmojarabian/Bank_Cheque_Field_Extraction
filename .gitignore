@@ -2,6 +2,7 @@
 __pycache__/
 *.py[cod]
 *$py.class
+*.cache
 
 # C extensions
 *.so
@@ -164,3 +165,5 @@ cython_debug/
 
 # virtual env
 bank_env/
+
+.vscode/

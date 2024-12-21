@@ -48,10 +48,12 @@ python train.py --batch 32 --epochs 1000 --img 512 --device 0 --min-items 0 --cl
 
 ## Some Inference Results
 
-Sample 1:
+**Sample 1:**
 
 ![Sample for Syndicate Bank](runs/detect/exp_4_1002_images/Cheque002.jpg)
 
-Sample 2:
+---
+
+**Sample 2:**
 
 ![Sample for Axis Bank](runs/detect/exp_4_1002_images/Cheque034.jpg)
